@@ -1,0 +1,32 @@
+stream_id,user_id,track_name,artist_name,album,genre,duration_sec,played_sec,timestamp,device_type,country,skip_reason
+S10001,U4521,Midnight Dreams,Luna Bay,Echoes,indie_pop,214,214,2025-09-28 22:15:33,mobile,US,
+S10002,U4522,Electric Pulse,The Synthwave Collective,Neon Nights,electronic,189,45,2025-09-28 22:16:10,desktop,UK,next_track
+S10003,U4521,Gravity,Luna Bay,Echoes,indie_pop,198,198,2025-09-28 22:19:15,mobile,US,
+S10004,U4523,Thunder Road,Highway Kings,Open Skies,rock,256,,2025-09-28 22:20:00,car,CA,
+S10005,U4524,Coffee Shop Jazz,Miles & The Smooth Cats,Sunday Morning,jazz,312,312,2025-09-28 22:22:44,smart_speaker,DE,
+S10006,U4525,Broken Strings,Acoustic Soul,Unplugged Sessions,folk,203,89,2025-09-28 22:25:11,mobile,FR,next_track
+S10007,U4522,Neon Lights,The Synthwave Collective,Neon Nights,electronic,201,201,2025-09-28 22:28:00,desktop,UK,
+S10008,U4526,Workout Energy,BPM Crew,Gym Motivation,edm,178,178,2025-09-28 23:05:22,mobile,US,
+S10009,U4527,Rainy Day Thoughts,Piano Reflections,,ambient,245,12,2025-09-28 23:10:15,desktop,US,disliked
+S10010,U4521,Ocean Waves,Luna Bay,Echoes,indie_pop,187,187,2025-09-28 23:12:30,mobile,US,
+S10011,U4528,Bass Drop,DJ Voltage,Electric Dreams,edm,195,195,2025-09-28 23:15:00,mobile,BR,
+S10012,U4529,Summer Breeze,Tropical Vibes,Island Life,reggae,,180,2025-09-28 23:18:45,smart_speaker,AU,
+S10013,U4523,Born to Run,Highway Kings,Open Skies,rock,289,289,2025-09-28 23:20:33,car,CA,
+S10014,U4530,Lo-Fi Study Beat #3,Chill Hop Collective,Focus Flow,lofi_hip_hop,420,420,2025-09-28 23:25:00,desktop,JP,
+S10015,U4524,Blue Note Ballad,Miles & The Smooth Cats,Sunday Morning,jazz,278,278,2025-09-28 23:30:12,smart_speaker,DE,
+S10016,U4531,Heartbreak Symphony,Classical Emotions,Modern Orchestra,classical,367,142,2025-09-28 23:35:20,desktop,UK,next_track
+S10017,U4525,Mountain Song,Acoustic Soul,Unplugged Sessions,folk,215,215,2025-09-28 23:40:00,mobile,FR,
+S10018,U4532,INVALID_TRACK,Unknown Artist,ERROR,unknown,0,0,invalid_timestamp,mobile,US,error
+S10019,U4526,Cardio Pump,BPM Crew,Gym Motivation,edm,182,182,2025-09-28 23:45:33,mobile,US,
+S10020,U4527,Night Drive,Synthwave Runner,Retrowave,electronic,223,223,2025-09-28 23:50:15,car,US,
+S10021,U4533,Meditation Flow,Zen Garden,Inner Peace,ambient,600,600,2025-09-29 00:05:00,smart_speaker,CA,
+S10022,U4521,Sunset Boulevard,Luna Bay,Echoes,indie_pop,209,35,2025-09-29 00:10:22,mobile,US,ad_break
+S10023,U4534,Rap Battle 2025,MC Flow,Street Poetry,hip_hop,198,,2025-09-29 00:15:00,mobile,US,
+S10024,U4522,Cyberpunk Dreams,The Synthwave Collective,Neon Nights,electronic,256,256,2025-09-29 00:20:18,desktop,UK,
+S10025,U4535,Country Road Home,Johnny Strings,Backroads,country,244,88,2025-09-29 00:25:45,car,US,next_track
+S10026,U4528,Festival Anthem,DJ Voltage,Electric Dreams,edm,203,203,2025-09-29 00:30:00,mobile,BR,
+S10027,U4530,Lo-Fi Study Beat #7,Chill Hop Collective,Focus Flow,lofi_hip_hop,380,380,2025-09-29 00:35:12,desktop,JP,
+S10028,U4536,Power Ballad,Rock Legends,Greatest Hits,rock,312,312,2025-09-29 00:40:00,desktop,DE,
+S10029,U4521,Starlight,Luna Bay,Echoes,indie_pop,192,192,2025-09-29 00:45:33,mobile,US,
+S10030,U4537,,Anonymous Artists,Mystery Album,experimental,156,23,2025-09-29 00:50:00,desktop,FR,next_track
+

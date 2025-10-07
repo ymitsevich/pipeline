@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  pipeline:
+    # Override the command to keep container alive for development
+    command: sleep infinity
+    # Run as root for VS Code server installation
+    user: root
+

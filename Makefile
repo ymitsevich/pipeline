@@ -11,46 +11,46 @@ help: ## Show this help message
 
 # Installation and Setup
 install: ## Install production dependencies
-	poetry install --only=main
+	pip install -r requirements.txt
 
 install-dev: ## Install all dependencies including dev tools
-	poetry install --with dev,test
+	pip install -r requirements-dev.txt
 
 setup-dev: install-dev ## Set up development environment
-	poetry run pre-commit install
+	pre-commit install
 	@echo "Development environment setup complete!"
 
 # Code Quality
 lint: ## Run all linting tools
-	poetry run black --check .
-	poetry run isort --check-only .
-	poetry run flake8 .
+	black --check .
+	isort --check-only .
+	flake8 .
 
 format: ## Format code with black and isort
-	poetry run black .
-	poetry run isort .
+	black .
+	isort .
 
 type-check: ## Run type checking with mypy
-	poetry run mypy src/
+	mypy src/
 
 security: ## Run security checks
-	poetry run bandit -r src/
-	poetry run safety check
+	bandit -r src/
+	safety check
 
 audit: lint type-check security ## Run all code quality checks
 
 # Testing
 test: ## Run tests
-	poetry run pytest
+	pytest
 
 test-cov: ## Run tests with coverage
-	poetry run pytest --cov=src --cov-report=html --cov-report=term-missing
+	pytest --cov=src --cov-report=html --cov-report=term-missing
 
 test-integration: ## Run integration tests
-	poetry run pytest -m integration
+	pytest -m integration
 
 test-unit: ## Run unit tests only
-	poetry run pytest -m unit
+	pytest -m unit
 
 # Docker Operations
 docker-build: ## Build Docker image
@@ -78,17 +78,38 @@ docker-shell: ## Open shell in the main container
 db-up: ## Start only database services
 	docker-compose up -d postgres redis
 
+db-init: ## Create database tables from SQLAlchemy models
+	DB_HOST=localhost DB_PORT=15432 python scripts/setup_db.py init
+
+db-drop: ## Drop all database tables (prompts for confirmation)
+	DB_HOST=localhost DB_PORT=15432 python scripts/setup_db.py drop
+
+db-reset-tables: ## Drop and recreate all tables (prompts for confirmation)
+	DB_HOST=localhost DB_PORT=15432 python scripts/setup_db.py reset
+
 db-migrate: ## Run database migrations
-	poetry run alembic upgrade head
+	alembic upgrade head
 
 db-downgrade: ## Downgrade database by one revision
-	poetry run alembic downgrade -1
+	alembic downgrade -1
 
 db-reset: ## Reset database (WARNING: destroys all data)
 	docker-compose down -v
 	docker-compose up -d postgres
 	sleep 10
 	$(MAKE) db-migrate
+
+# SQLAlchemy Learning
+learn-sqlalchemy: ## Run SQLAlchemy learning script
+	DB_HOST=localhost DB_PORT=15432 python scripts/learn_sqlalchemy.py
+
+learn-setup: db-up ## Complete SQLAlchemy learning setup (start DB + create tables)
+	@echo "Waiting for Postgres to be ready..."
+	@sleep 5
+	@$(MAKE) db-init
+	@echo ""
+	@echo "✅ Database is ready!"
+	@echo "Run 'make learn-sqlalchemy' to start the tutorial"
 
 # Development Services
 jupyter: ## Start Jupyter Lab
@@ -102,19 +123,19 @@ monitoring: ## Start monitoring stack (Prometheus + Grafana)
 
 # Pipeline Operations
 run: ## Run the pipeline locally
-	poetry run pipeline run
+	python -m pipeline.cli run
 
 run-docker: ## Run the pipeline in Docker
 	docker-compose up pipeline
 
 dry-run: ## Perform a dry run of the pipeline
-	poetry run pipeline run --dry-run
+	python -m pipeline.cli run --dry-run
 
 config: ## Show current configuration
-	poetry run pipeline config
+	python -m pipeline.cli config
 
 health: ## Check application health
-	poetry run pipeline health
+	python -m pipeline.cli health
 
 # Utility
 clean: ## Clean up temporary files and caches
@@ -165,7 +186,7 @@ show-env: ## Show environment variables (excluding secrets)
 	@echo "========================"
 	@env | grep -E "^(PIPELINE_|DB_|LOG_|API_)" | sed 's/=.*PASSWORD.*/=***/' | sort
 
-# Generate requirements.txt for legacy compatibility
-requirements: ## Generate requirements.txt from poetry.lock
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
-	poetry export -f requirements.txt --output requirements-dev.txt --with dev,test --without-hashes
+# Generate requirements lockfiles
+requirements: ## Freeze dependencies into requirements files
+	pip freeze > requirements.txt
+	pip freeze > requirements-dev.txt

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   pipeline:
     build:
@@ -15,6 +13,7 @@ services:
       - ENVIRONMENT=development
       - DEBUG=true
       - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_NAME=pipeline
       - DB_USER=postgres
       - DB_PASSWORD=postgres
@@ -27,7 +26,7 @@ services:
       - pipeline_network
     ports:
       - "8000:8000"
-    command: ["poetry", "run", "pipeline", "run"]
+    command: sleep infinity
     restart: unless-stopped
 
   postgres:
@@ -40,9 +39,9 @@ services:
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
+#      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql:ro
     ports:
-      - "5432:5432"
+      - "15432:5432"
     networks:
       - pipeline_network
     healthcheck:
@@ -87,7 +86,7 @@ services:
     networks:
       - pipeline_network
     command: >
-      sh -c "poetry run jupyter lab
+      sh -c "python -m jupyterlab
              --ip=0.0.0.0
              --port=8888
              --allow-root

@@ -1,0 +1,46 @@
+{
+  "name": "Pipeline Dev Container",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.yml"
+  ],
+  "service": "pipeline",
+  "workspaceFolder": "/app",
+  
+  // Only start these services, not the pipeline service itself
+  "runServices": ["postgres", "redis"],
+  
+  // Run as root to avoid permission issues with VS Code server installation
+  // You can switch to pipeline user in terminal if needed
+  "remoteUser": "root",
+  
+  // Environment variables
+  "containerEnv": {
+    "PYTHONPATH": "/app/src"
+  },
+  
+  // Install dependencies after container is created
+  "postCreateCommand": "pip install -r requirements-dev.txt",
+  
+  // VS Code settings
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "files.autoSave": "afterDelay"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+      ]
+    }
+  },
+  
+  // What to do when closing VS Code
+  "shutdownAction": "stopCompose"
+}
