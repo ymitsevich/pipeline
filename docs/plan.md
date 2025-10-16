@@ -4,6 +4,7 @@
 
 - **Objective**: Build an end-to-end pipeline that ingests listening events, enriches with track/artist info, computes daily stats, and exports Parquet snapshots.
 - **Data source**: ListenBrainz public listens (e.g., `user/iliekcomputers` (curl -sI "https://listenbrainz.org/user/iliekcomputers" | head -n1) or `latest` endpoint); fallback to a small synthetic generator if offline.
+e.g. curl "https://api.listenbrainz.org/1/user/iliekcomputers/listens?count=3"
 - **Minimal schema**:
   - `listen_events`: `user_id`, `played_at_ts`, `track`, `artist`, `album`, `source`
   - `tracks`: `track_id`, `track_name`, `artist_id`, `album`

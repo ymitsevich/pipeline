@@ -7,8 +7,6 @@ from unittest.mock import Mock
 import pytest
 from pytest_mock import MockerFixture
 
-from pipeline.world import Place
-
 # TODO: Uncomment when these modules are created
 # from pipeline.config.settings import Settings
 # from pipeline.core.pipeline import Pipeline
@@ -123,8 +121,3 @@ def pytest_configure(config):
     )
     config.addinivalue_line("markers", "requires_redis: mark test as requiring Redis")
 
-
-@pytest.fixture
-def empty_place():
-    """Fixture that provides a fresh Place for each test."""
-    return Place(x=2, y=3)

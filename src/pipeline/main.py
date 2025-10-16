@@ -1,64 +1,107 @@
+import argparse
 import logging
 import pprint
-import pandas as pd
+from typing import Dict, Optional
 
 from dotenv import load_dotenv
-from pipeline.database import User, get_session
-from pipeline.world import generate_random_world
-from pipeline.drawer import draw
-from pipeline.storage import HttpStorage, JsonStorage
+from pipeline.clients import ListenBrainzClient, MusicBrainzClient
+from pipeline.config import load_config
+from pipeline.enrichment import ListenEnricher
 from pipeline.logger import get_json_logger, get_plain_text_logger
-from scripts.learn_sqlalchemy import insert_sample_data
-from scripts.setup_db import init_db
+from pipeline.persistence import DataWarehouseWriter
+from pipeline.services import IngestionService, PlaybackCursorProvider
 
 
-def process()->None:
-    df = pd.read_csv('data/raw_plays.csv', parse_dates=['timestamp'])
-    pprint.pprint(df)    
+def process(full_resync: bool = False) -> None:
+    print("processing...")
+    config = load_config()
+    listen_client = ListenBrainzClient(
+        user=config.listenbrainz.user,
+        count=config.listenbrainz.fetch_count,
+        logger=logger,
+    )
+    music_client = MusicBrainzClient(logger=logger)
+    enricher = ListenEnricher(music_client=music_client, logger=logger)
+    warehouse_writer = DataWarehouseWriter(logger=logger)
+    cursor_provider = PlaybackCursorProvider(logger=logger)
+    ingestion_service = IngestionService(
+        listen_client=listen_client,
+        cursor_provider=cursor_provider,
+        logger=logger,
+    )
 
-    # Combine genre and date filters
-    genre_filter = df['genre'].isin(['edm', 'rap', 'hip_hop'])
-    date_filter = df['timestamp'] < '2025-09-29'
-    modern_music_mask = date_filter & genre_filter
-    
-    modern_music = df[modern_music_mask]
-    print('modern_music')
-    filtered_columns = ['timestamp', 'genre', 'track_name']
-    modern_music = modern_music[filtered_columns]
-    pprint.pprint(modern_music)
-    modern_music.to_csv('data/modern_music.csv', index=False)
+    if full_resync:
+        logger.info("Full resync requested", extra={"event": "ingest.full_resync"})
 
-
-
-def dungeon() -> None:
-
-    storage = JsonStorage()
-
-    logger.info("Pipeline starting")
-
-    try:
-        stage = storage.load()
-        logger.info("Stage loaded from storage")
-        stage = generate_random_world()
-        logger.info("Random world generated")
-    except ValueError as e:
-        logger.exception(
-            "Error during running stage", extra={"error_type": "ValueError"}
+    result = ingestion_service.fetch(full_resync=full_resync)
+    listens_df = result.listens
+    if listens_df.empty:
+        print("no listens found")
+        logger.info(
+            "No new listens ingested",
+            extra={
+                "event": "ingest.no_new_listens",
+                "new_listens": 0,
+                "last_ts": result.cursor_used,
+            },
         )
+        return
 
-        exit(1)
+    enriched = enricher.enrich(listens_df)
+    warehouse_writer.persist(enriched)
+    counts = {key: int(len(value)) for key, value in enriched.items()}
+    logger.info(
+        "Ingested listens persisted",
+        extra={
+            "event": "ingest.persisted",
+            **{f"{key}_count": count for key, count in counts.items()},
+        },
+    )
+    _emit_ingestion_metrics(
+        fetched=int(len(listens_df)),
+        cursor_used=result.cursor_used,
+        full_resync=full_resync,
+        counts=counts,
+    )
 
-    draw(stage)
-    logger.info("Stage drawn successfully")
 
-    storage.save(stage)
+def _emit_ingestion_metrics(
+    *,
+    fetched: int,
+    cursor_used: Optional[int],
+    full_resync: bool,
+    counts: Dict[str, int],
+) -> None:
+    logger.info(
+        "Ingestion metrics",
+        extra={
+            "event": "metrics.ingestion",
+            "fetched": fetched,
+            "cursor_used": cursor_used,
+            "full_resync": full_resync,
+            **{f"persisted_{key}": value for key, value in counts.items()},
+        },
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Pipeline main entrypoint")
+    parser.add_argument(
+        "--full-resync",
+        action="store_true",
+        help="Ignore existing plays and fetch all listens from ListenBrainz",
+    )
+    args = parser.parse_args()
+
+    load_dotenv()
+    process(full_resync=args.full_resync)
 
 
 logger = get_json_logger(__name__)
-load_dotenv()
 
-session = get_session()
-data = session.query(User).all()
-pprint.pprint(data)
+# session = get_session()
+# data = session.query(User).all()
+# pprint.pprint(data)
 
-# process()
+if __name__ == "__main__":
+    main()
